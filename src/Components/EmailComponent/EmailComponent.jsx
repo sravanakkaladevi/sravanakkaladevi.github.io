@@ -10,6 +10,7 @@ function EmailComponent() {
   const [message, setMessage] = useState("");
   const [viewLoader, setViewLoader] = useState(false);
   const [viewAlert, setViewAlert] = useState(false);
+  const [alertMsg, setAlertMsg] = useState("");
 
   const form = useRef();
 
@@ -17,41 +18,49 @@ function EmailComponent() {
     e.preventDefault();
     setViewLoader(true);
 
-    const service_ID  = "service_0jodoje"; // ✅ Your EmailJS service ID
-    const template_ID = "template_0xxbrb1"; // ✅ Your main template (to you)
-    const autoReplyTemplate_ID = "template_35hmgua"; // ✅ Your auto-reply template (to user)
-    const public_key  = "pV9eM-fI9W4wg98UD"; // ✅ Your public key
+    const service_ID = "service_0jodoje";
+    const template_ID = "template_0xxbrb1";
+    const autoReplyTemplate_ID = "template_35hmgua";
+    const public_key = "pV9eM-fI9W4wg98UD";
 
     const templateParams = {
       from_name: fname,
       from_email: email,
       to_name: "A. Sravan Kumar",
-      message: message
+      message: message,
+      title: "Portfolio Contact Form Submission"
     };
 
-    // 1. Send email to YOU
+    // Send to you (owner)
     emailjs.send(service_ID, template_ID, templateParams, public_key)
-      .then((response) => {
-        console.log("Message sent to owner:", response);
+      .then(() => {
+        console.log("Message sent to owner");
 
-        // 2. Send auto-reply to USER
+        // Auto-reply to user
         emailjs.send(service_ID, autoReplyTemplate_ID, templateParams, public_key)
-          .then((reply) => {
-            console.log("Auto-reply sent to user:", reply);
+          .then(() => {
+            console.log("Auto-reply sent to user");
           })
           .catch((err) => {
             console.error("Auto-reply error:", err);
           });
 
-        setViewLoader(false);
+        setAlertMsg(`✅ Thank you ${fname}, your message has been sent successfully!`);
         setViewAlert(true);
         setFname("");
         setEmail("");
         setMessage("");
+        setViewLoader(false);
+
+        setTimeout(() => setViewAlert(false), 4000); // auto-hide alert
       })
       .catch((error) => {
         console.error("Email send error:", error);
+        setAlertMsg("❌ Failed to send message. Please try again later.");
+        setViewAlert(true);
         setViewLoader(false);
+
+        setTimeout(() => setViewAlert(false), 4000);
       });
   };
 
@@ -60,6 +69,7 @@ function EmailComponent() {
       <div className={styles.header}>
         <h1 className={styles.header_title}>Send me a Message</h1>
       </div>
+
       <form className={styles.form} onSubmit={sendEmail}>
         <div className={styles.row}>
           <div className={styles.col}>
@@ -75,6 +85,7 @@ function EmailComponent() {
             />
           </div>
         </div>
+
         <div className={styles.row}>
           <div className={styles.col}>
             <label htmlFor="email">Email Address</label>
@@ -82,13 +93,14 @@ function EmailComponent() {
               className={`${styles.input} ${styles.email_input}`}
               type="email"
               placeholder="Enter your email address"
-              value={email}
               name="user_email"
+              value={email}
               required
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
         </div>
+
         <div className={styles.row}>
           <div className={`${styles.col} ${styles.message_input_section}`}>
             <label htmlFor="message">Enter your Message</label>
@@ -105,13 +117,18 @@ function EmailComponent() {
             ></textarea>
           </div>
         </div>
-        <button className={styles.submit_btn} type="submit"> 
+
+        <button
+          className={styles.submit_btn}
+          type="submit"
+          disabled={viewLoader}
+        >
           <i className="fa-solid fa-paper-plane"></i>
         </button>
       </form>
 
       {viewLoader && <Loader />}
-      {viewAlert && <AlertBox />}
+      {viewAlert && <AlertBox message={alertMsg} />}
     </div>
   );
 }
