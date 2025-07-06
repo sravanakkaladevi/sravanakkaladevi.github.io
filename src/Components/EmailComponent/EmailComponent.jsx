@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import styles from "./EmailComponent.module.css";
 import emailjs from '@emailjs/browser';
 import AlertBox from "../AlertBox/AlertBox";
@@ -11,46 +11,45 @@ function EmailComponent() {
   const [viewLoader, setViewLoader] = useState(false);
   const [viewAlert, setViewAlert] = useState(false);
 
-  const form = useRef();
-
   const sendEmail = (e) => {
     e.preventDefault();
     setViewLoader(true);
 
-    const service_ID  = "service_0jodoje"; // ✅ Your EmailJS service ID
-    const template_ID = "template_0xxbrb1"; // ✅ Your main template (to you)
-    const autoReplyTemplate_ID = "template_35hmgua"; // ✅ Your auto-reply template (to user)
-    const public_key  = "pV9eM-fI9W4wg98UD"; // ✅ Your public key
+    const service_ID = "service_0jodoje";
+    const template_ID = "template_0xxbrb1";         // Your main template (to Sravan)
+    const autoReplyTemplate_ID = "template_35hmgua"; // Auto-reply template (to user)
+    const public_key = "VUQewFl6W71kPu0sz";
 
     const templateParams = {
       from_name: fname,
       from_email: email,
       to_name: "A. Sravan Kumar",
-      message: message
+      message: message,
     };
 
-    // 1. Send email to YOU
+    // 1. Send message to owner
     emailjs.send(service_ID, template_ID, templateParams, public_key)
-      .then((response) => {
-        console.log("Message sent to owner:", response);
+      .then(() => {
+        console.log("Message sent to Sravan!");
 
-        // 2. Send auto-reply to USER
+        // 2. Auto-reply to sender
         emailjs.send(service_ID, autoReplyTemplate_ID, templateParams, public_key)
-          .then((reply) => {
-            console.log("Auto-reply sent to user:", reply);
+          .then(() => {
+            console.log("Auto-reply sent to user.");
           })
           .catch((err) => {
-            console.error("Auto-reply error:", err);
+            console.error("Auto-reply failed:", err);
           });
 
-        setViewLoader(false);
-        setViewAlert(true);
+        // Reset form and UI state
         setFname("");
         setEmail("");
         setMessage("");
+        setViewLoader(false);
+        setViewAlert(true);
       })
-      .catch((error) => {
-        console.error("Email send error:", error);
+      .catch((err) => {
+        console.error("Email failed:", err);
         setViewLoader(false);
       });
   };
@@ -82,8 +81,8 @@ function EmailComponent() {
               className={`${styles.input} ${styles.email_input}`}
               type="email"
               placeholder="Enter your email address"
+              name="from_email"
               value={email}
-              name="user_email"
               required
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -105,7 +104,7 @@ function EmailComponent() {
             ></textarea>
           </div>
         </div>
-        <button className={styles.submit_btn} type="submit"> 
+        <button className={styles.submit_btn} type="submit">
           <i className="fa-solid fa-paper-plane"></i>
         </button>
       </form>
