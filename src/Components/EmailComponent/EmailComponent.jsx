@@ -17,20 +17,32 @@ function EmailComponent() {
     e.preventDefault();
     setViewLoader(true);
 
-    const service_ID  = "service_qe6i7dq";
-    const template_ID = "template_35hmgua";
-    const public_key  = "pV9eM-fI9W4wg98UD";
+    const service_ID  = "service_0jodoje"; // ✅ Your EmailJS service ID
+    const template_ID = "template_0xxbrb1"; // ✅ Your main template (to you)
+    const autoReplyTemplate_ID = "template_35hmgua"; // ✅ Your auto-reply template (to user)
+    const public_key  = "pV9eM-fI9W4wg98UD"; // ✅ Your public key
 
-    const template = {
-      from_name : fname,
-      from_email : email,
-      to_name : "A. Sravan Kumar",
+    const templateParams = {
+      from_name: fname,
+      from_email: email,
+      to_name: "A. Sravan Kumar",
       message: message
     };
 
-    emailjs.send(service_ID, template_ID, template, public_key)
+    // 1. Send email to YOU
+    emailjs.send(service_ID, template_ID, templateParams, public_key)
       .then((response) => {
-        console.log("Success", response);
+        console.log("Message sent to owner:", response);
+
+        // 2. Send auto-reply to USER
+        emailjs.send(service_ID, autoReplyTemplate_ID, templateParams, public_key)
+          .then((reply) => {
+            console.log("Auto-reply sent to user:", reply);
+          })
+          .catch((err) => {
+            console.error("Auto-reply error:", err);
+          });
+
         setViewLoader(false);
         setViewAlert(true);
         setFname("");
@@ -38,7 +50,8 @@ function EmailComponent() {
         setMessage("");
       })
       .catch((error) => {
-        console.error(error);
+        console.error("Email send error:", error);
+        setViewLoader(false);
       });
   };
 
@@ -46,7 +59,6 @@ function EmailComponent() {
     <div className={styles.email_component}>
       <div className={styles.header}>
         <h1 className={styles.header_title}>Send me a Message</h1>
-        {/* Removed image */}
       </div>
       <form className={styles.form} onSubmit={sendEmail}>
         <div className={styles.row}>
