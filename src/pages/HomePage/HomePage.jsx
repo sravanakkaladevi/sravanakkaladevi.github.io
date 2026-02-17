@@ -1,6 +1,6 @@
 import Navbar from "../../Components/Navbar/Navbar.jsx";
 import style from "./HomePage.module.css";
-import HeroImage from "../../assets/heroImage.png";
+import HeroImage from "../../assets/heroImage.jpg";
 import { motion } from "framer-motion";
 
 function HomePage() {
